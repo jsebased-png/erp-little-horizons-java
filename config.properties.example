@@ -1,0 +1,22 @@
+# Copy this file to "config.properties" (project root) and fill in your values.
+# The real config.properties is listed in .gitignore and must NEVER be committed.
+
+# --- Database ---
+db.url=jdbc:mysql://localhost:3306/erp_little_horizons?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=America/Bogota
+db.user=your_user
+db.password=your_password
+
+# --- School data (used on electronic invoices) ---
+school.name=Colegio Internacional Little Horizons S.A.S.
+school.nit=900123456-7
+school.address=Calle 45 # 27-30, Bucaramanga, Santander
+school.phone=+57 607 123 4567
+school.email=facturacion@littlehorizons.edu.co
+school.dian.resolution=Resolucion DIAN No. 18760000001 del 2026-01-15 (simulada)
+
+# --- Taxes (VAT rates as decimals) ---
+tax.vat.education=0.00
+tax.vat.other=0.19
+
+# --- Folders ---
+invoices.dir=invoices

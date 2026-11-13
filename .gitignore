@@ -1,0 +1,16 @@
+# Credentials (keep only config.properties.example in the repo)
+config.properties
+
+# Runtime output
+logs/
+invoices/
+
+# Build output
+target/
+out/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.DS_Store
