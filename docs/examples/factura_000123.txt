@@ -1,0 +1,41 @@
+========================================================================
+              FACTURA ELECTRONICA DE VENTA (SIMULADA DIAN)
+              Colegio Internacional Little Horizons S.A.S.
+========================================================================
+
+NIT: 900123456-7
+Direccion: Calle 45 # 27-30, Bucaramanga, Santander
+Telefono: +57 607 123 4567
+Correo: facturacion@littlehorizons.edu.co
+Resolucion: Resolucion DIAN No. 18760000001 del 2026-01-15 (simulada)
+
+------------------------------------------------------------------------
+Numero factura : FE-000123
+Fecha emision  : 2026-02-05
+Recibo pago    : REC-2026-0002
+Metodo pago    : Transferencia
+------------------------------------------------------------------------
+
+ADQUIRIENTE (acudiente responsable financiero)
+  Nombre   : Roberto Carlos Gomez Sanchez
+  Documento: CC 912345678
+
+ESTUDIANTE
+  Nombre   : Santiago Andres Gomez Gomez
+  Documento: TI 1001234567
+
+------------------------------------------------------------------------
+Cant.  Descripcion                    V. Unit.     Subtotal          IVA
+------------------------------------------------------------------------
+1      Pension Mensual (hermanos)   $ 350.000,00 $ 315.000,00     $ 0,00
+------------------------------------------------------------------------
+                                       Subtotal:  $ 315.000,00
+                                    IVA (0%):     $ 0,00
+                                       TOTAL:     $ 315.000,00
+
+========================================================================
+CUFE (simulado): CUFE-SIM-FE-000123-900123456-7-20260205
+QR textual: NumFactura=FE-000123 | NIT=900123456-7 | Fecha=2026-02-05
+========================================================================
+          Documento generado por Little Horizons ERP (simulacion)
+========================================================================
