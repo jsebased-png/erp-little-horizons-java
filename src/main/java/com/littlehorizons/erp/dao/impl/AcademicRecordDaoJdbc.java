@@ -2,6 +2,8 @@ package com.littlehorizons.erp.dao.impl;
 
 import com.littlehorizons.erp.config.DatabaseConnection;
 import com.littlehorizons.erp.dao.AcademicRecordDao;
+import com.littlehorizons.erp.dto.SubjectGradeRecord;
+import com.littlehorizons.erp.dto.SubjectInfo;
 import com.littlehorizons.erp.model.AcademicPeriod;
 import com.littlehorizons.erp.model.AcademicRecord;
 import com.littlehorizons.erp.util.EnumUtil;
@@ -72,6 +74,31 @@ public class AcademicRecordDaoJdbc extends BaseJdbcDao implements AcademicRecord
     public List<AcademicRecord> findByYear(int academicYear) {
         return queryList(SELECT + "WHERE `año_academico` = ? ORDER BY id_estudiante, id_materia",
                 AcademicRecordDaoJdbc::map, academicYear);
+    }
+
+    /**
+     * Flow: PerformanceReportController -> this method -> BaseJdbcDao.queryList, which opens the Connection,
+     * PreparedStatement and ResultSet in try-with-resources (all closed automatically, even on error) -> MySQL.
+     * INNER JOIN through the foreign key id_materia: a grade always has a subject (ON DELETE CASCADE), and
+     * subjects without grades are intentionally left out because they have no average.
+     */
+    @Override
+    public List<SubjectGradeRecord> findAllWithSubject() {
+        return queryList("SELECT r.id_registro, r.valor_nota, r.periodo_academico, "
+                + "m.id_materia, m.codigo_materia, m.nombre_materia "
+                + "FROM registros_academicos r "
+                + "INNER JOIN materias m ON m.id_materia = r.id_materia "
+                + "ORDER BY m.codigo_materia, r.id_registro",
+                AcademicRecordDaoJdbc::mapSubjectGrade);
+    }
+
+    private static SubjectGradeRecord mapSubjectGrade(ResultSet rs) throws SQLException {
+        return new SubjectGradeRecord(
+                rs.getInt("id_registro"),
+                rs.getBigDecimal("valor_nota"),
+                EnumUtil.fromLabel(AcademicPeriod.class, rs.getString("periodo_academico")),
+                new SubjectInfo(rs.getInt("id_materia"), rs.getString("codigo_materia"),
+                        rs.getString("nombre_materia")));
     }
 
     private static AcademicRecord map(ResultSet rs) throws SQLException {

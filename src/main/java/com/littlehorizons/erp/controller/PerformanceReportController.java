@@ -5,6 +5,10 @@ import com.littlehorizons.erp.dao.AttendanceDao;
 import com.littlehorizons.erp.dao.StudentDao;
 import com.littlehorizons.erp.dao.SubjectDao;
 import com.littlehorizons.erp.dto.StudentAverage;
+import com.littlehorizons.erp.dto.SubjectAverage;
+import com.littlehorizons.erp.dto.SubjectGradeRecord;
+import com.littlehorizons.erp.dto.SubjectInfo;
+import com.littlehorizons.erp.dto.SubjectPerformanceReport;
 import com.littlehorizons.erp.exception.ValidationException;
 import com.littlehorizons.erp.model.AcademicPeriod;
 import com.littlehorizons.erp.model.AcademicRecord;
@@ -21,6 +25,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -85,6 +90,47 @@ public class PerformanceReportController {
         return averages.entrySet().stream()
                 .sorted(Map.Entry.<String, BigDecimal>comparingByValue().reversed())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+    }
+
+    /**
+     * General average of every subject over ALL its grades (any student, year and period), ordered from the highest
+     * to the lowest, plus the subject(s) with the best average.
+     * <p>
+     * Flow: AcademicView -> SubjectPerformanceView -> this method -> AcademicRecordDao (JOIN in MySQL).
+     * The controller receives the DAO through its constructor (wired once in AppContext), so it never opens a
+     * connection itself; it only runs Stream pipelines over the rows the DAO returns.
+     * <p>
+     * Design decisions:
+     * - Scores are averaged as tenths (4.5 -> 45.0): the sum of integer-valued doubles is exact, so
+     *   averagingDouble cannot introduce binary rounding errors, and Math.round gives an exact HALF_UP to 1 decimal.
+     * - Ties are decided on the rounded average, i.e. on the value the user sees on screen (two subjects that print
+     *   4.5 are both "best"). Equal averages are sorted by subject code so the output is deterministic.
+     * - No grades means empty maps/lists/Optionals everywhere: no division by zero and no get() on an empty value.
+     */
+    public SubjectPerformanceReport subjectPerformanceReport() {
+        List<SubjectGradeRecord> grades = recordDao.findAllWithSubject();
+
+        // Step 1: group grades by subject and average them (key = subject, value = average in tenths)
+        Map<SubjectInfo, Double> averageInTenths = grades.stream()
+                .collect(Collectors.groupingBy(SubjectGradeRecord::subject,
+                        Collectors.averagingDouble(g -> g.score().movePointRight(1).doubleValue())));
+
+        // Step 2: entries -> DTOs with the average rounded to 1 decimal -> highest first (ties by code)
+        List<SubjectAverage> ranking = averageInTenths.entrySet().stream()
+                .map(e -> new SubjectAverage(e.getKey(), BigDecimal.valueOf(Math.round(e.getValue()), 1)))
+                .sorted(Comparator.comparing(SubjectAverage::average).reversed()
+                        .thenComparing(s -> s.subject().code()))
+                .toList();
+
+        // Step 3: maximum average (Optional: empty when there are no subjects), then keep EVERY subject that equals it
+        Optional<BigDecimal> maxAverage = ranking.stream()
+                .map(SubjectAverage::average)
+                .max(Comparator.naturalOrder());
+        List<SubjectAverage> topSubjects = maxAverage
+                .map(max -> ranking.stream().filter(s -> s.average().compareTo(max) == 0).toList())
+                .orElseGet(List::of);
+
+        return new SubjectPerformanceReport(ranking, topSubjects);
     }
 
     /** How many grades pass (3.0 or more) and how many fail in a year. Key true = pass, false = fail. */

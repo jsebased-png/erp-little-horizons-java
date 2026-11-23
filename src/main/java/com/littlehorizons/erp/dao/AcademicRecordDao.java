@@ -1,5 +1,6 @@
 package com.littlehorizons.erp.dao;
 
+import com.littlehorizons.erp.dto.SubjectGradeRecord;
 import com.littlehorizons.erp.model.AcademicPeriod;
 import com.littlehorizons.erp.model.AcademicRecord;
 
@@ -20,4 +21,7 @@ public interface AcademicRecordDao extends ReadableDao<AcademicRecord> {
     List<AcademicRecord> findBySubjectAndYear(int subjectId, int academicYear);
 
     List<AcademicRecord> findByYear(int academicYear);
+
+    /** Every grade of the school (any student, year and period) joined with its subject. Empty list when there are none. */
+    List<SubjectGradeRecord> findAllWithSubject();
 }
