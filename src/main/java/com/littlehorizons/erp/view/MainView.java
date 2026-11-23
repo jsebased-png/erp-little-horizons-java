@@ -47,7 +47,9 @@ public class MainView {
         GradeView gradeView = new GradeView(context.grades(), names, pickers, input, printer, paged);
         AttendanceView attendanceView = new AttendanceView(context.attendance(), names, pickers, input, printer, paged);
         SubjectView subjectView = new SubjectView(context.subjects(), names, pickers, input, printer, paged);
-        AcademicView academic = new AcademicView(enrollmentView, gradeView, attendanceView, subjectView, input, printer);
+        SubjectPerformanceView subjectPerformanceView = new SubjectPerformanceView(context.performanceReports(), printer);
+        AcademicView academic = new AcademicView(enrollmentView, gradeView, attendanceView, subjectView,
+                subjectPerformanceView, input, printer);
         TeacherView teachers = new TeacherView(context.teachers(), names, pickers, input, printer, paged);
         ClubView clubView = new ClubView(context.clubs(), names, pickers, input, printer, paged);
         EventView eventView = new EventView(context.events(), names, pickers, input, printer, paged);
