@@ -20,3 +20,4 @@ tax.vat.other=0.19
 
 # --- Folders ---
 invoices.dir=invoices
+reports.dir=reports

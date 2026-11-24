@@ -16,10 +16,12 @@ import com.littlehorizons.erp.model.Attendance;
 import com.littlehorizons.erp.model.AttendanceStatus;
 import com.littlehorizons.erp.model.Student;
 import com.littlehorizons.erp.model.Subject;
+import com.littlehorizons.erp.service.SubjectPerformanceTextWriter;
 import com.littlehorizons.erp.util.Averages;
 import com.littlehorizons.erp.util.Validator;
 
 import java.math.BigDecimal;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -42,13 +44,16 @@ public class PerformanceReportController {
     private final AttendanceDao attendanceDao;
     private final StudentDao studentDao;
     private final SubjectDao subjectDao;
+    private final SubjectPerformanceTextWriter reportWriter;
 
     public PerformanceReportController(AcademicRecordDao recordDao, AttendanceDao attendanceDao,
-                                       StudentDao studentDao, SubjectDao subjectDao) {
+                                       StudentDao studentDao, SubjectDao subjectDao,
+                                       SubjectPerformanceTextWriter reportWriter) {
         this.recordDao = recordDao;
         this.attendanceDao = attendanceDao;
         this.studentDao = studentDao;
         this.subjectDao = subjectDao;
+        this.reportWriter = reportWriter;
     }
 
     /** Best students of a period: general average per student, highest first, limited to "limit" rows. */
@@ -131,6 +136,11 @@ public class PerformanceReportController {
                 .orElseGet(List::of);
 
         return new SubjectPerformanceReport(ranking, topSubjects);
+    }
+
+    /** Saves a report already calculated by subjectPerformanceReport() as a .txt file and returns where it was written. */
+    public Path exportSubjectPerformanceReport(SubjectPerformanceReport report) {
+        return reportWriter.write(report);
     }
 
     /** How many grades pass (3.0 or more) and how many fail in a year. Key true = pass, false = fail. */
