@@ -58,6 +58,7 @@ import com.littlehorizons.erp.exception.ConfigurationException;
 import com.littlehorizons.erp.service.InvoiceGenerator;
 import com.littlehorizons.erp.service.TextInvoiceGenerator;
 import com.littlehorizons.erp.service.SchoolInfo;
+import com.littlehorizons.erp.service.SubjectPerformanceTextWriter;
 import com.littlehorizons.erp.util.ConfigLoader;
 import com.littlehorizons.erp.util.TaxCalculator;
 
@@ -140,7 +141,11 @@ public class AppContext {
         resourceController = new ResourceController(resourceDao, categoryDao);
         // method reference: LoanDaoFactory::create becomes the Function<BorrowerType, LoanDao> the controller needs
         loanController = new LoanController(loanDaoFactory::create, resourceDao, studentDao, teacherDao);
-        performanceReportController = new PerformanceReportController(recordDao, attendanceDao, studentDao, subjectDao);
+        // report .txt files go to reports.dir (default: reports/), the same way invoices go to invoices.dir
+        SubjectPerformanceTextWriter reportWriter = new SubjectPerformanceTextWriter(
+                Path.of(config.get("reports.dir", "reports")));
+        performanceReportController = new PerformanceReportController(recordDao, attendanceDao, studentDao, subjectDao,
+                reportWriter);
         participationReportController = new ParticipationReportController(clubDao, membershipDao, eventDao,
                 participantDao, studentDao);
     }

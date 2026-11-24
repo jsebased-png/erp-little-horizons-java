@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * Screen "Reporte de Rendimiento Académico por Materia".
  * Flow: AcademicView (menu option) -> this view -> PerformanceReportController (Streams) -> AcademicRecordDao -> MySQL.
  * It receives the controller through its constructor (MainView takes it from AppContext) and only prints:
- * every number is already calculated and ordered. The "press ENTER" pause and the error handling are done by
+ * every number is already calculated and ordered; the controller also saves the report as a .txt file. The "press ENTER" pause and the error handling are done by
  * Menu.add(...), so this class needs no try/catch.
  */
 // SOLID: SRP – prints one report; DIP – depends on the controller, never on a DAO
@@ -43,6 +43,9 @@ public class SubjectPerformanceView {
                         .toList());
 
         printTopSubjects(report.topSubjects());
+
+        // every generated report is also saved as a .txt file (the path is shown so the user can find it)
+        printer.success("Reporte guardado en: " + performance.exportSubjectPerformanceReport(report).toAbsolutePath());
     }
 
     /** One top subject is shown as the featured subject; several mean a tie and all of them are listed. */
